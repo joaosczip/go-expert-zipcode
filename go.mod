@@ -3,6 +3,8 @@ module github.com/joaosczip/zipcode_temp
 go 1.20
 
 require (
+	github.com/go-chi/chi v1.5.5
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/stretchr/testify v1.9.0
 )

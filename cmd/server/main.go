@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/joaosczip/zipcode_temp/internal/handlers"
 	"github.com/joaosczip/zipcode_temp/pkg/weather"
 	"github.com/joaosczip/zipcode_temp/pkg/zipcode"
@@ -16,7 +18,9 @@ type httpResponse struct {
 }
 
 func main() {
-	http.HandleFunc("/temperature", func(w http.ResponseWriter, r *http.Request) {
+	r := chi.NewRouter()
+
+	r.Get("/temperature", func(w http.ResponseWriter, r *http.Request) {
 		httpClient := http.DefaultClient
 
 		zipcodeClient := zipcode.NewViaCepZipCodeClient(httpClient)
@@ -59,5 +63,5 @@ func main() {
 		}
 	})
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", r)
 }
