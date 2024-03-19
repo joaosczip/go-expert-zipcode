@@ -69,4 +69,32 @@ func TestWeatherAPIClient(t *testing.T) {
 		assert.Nil(t, weather)
 		assert.ErrorIs(t, err, ErrInvalidLocation)
 	})
+
+	t.Run("should return an error when the city is blank", func(t *testing.T) {
+		mockedResponse := `
+			{
+				"error": {
+					"code": 1003,
+					"message": "Parameter q is missing."
+				}
+			}
+		`
+
+		httpmock.RegisterResponder(
+			http.MethodGet,
+			"https://api.weatherapi.com/v1/current.json?key=123&q=",
+			httpmock.NewStringResponder(
+				http.StatusBadRequest,
+				mockedResponse,
+			),
+		)
+
+		weatherClient := NewWeatherAPIClient(http.DefaultClient)
+
+		weather, err := weatherClient.Fetch(context.TODO(), "")
+
+		assert.Error(t, err)
+		assert.Nil(t, weather)
+		assert.ErrorIs(t, err, ErrMissingLocation)
+	})
 }
