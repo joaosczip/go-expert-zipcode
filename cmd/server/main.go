@@ -20,5 +20,9 @@ func main() {
 
 	r.Get("/temperature", routes.FetchTemperature)
 
-	http.ListenAndServe(":8080", r)
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		panic(err)
+	} else {
+		println("Server running on port 8080")
+	}
 }
