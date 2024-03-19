@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrZipCodeNotFound = errors.New("zipcode not found")
+	ErrZipCodeNotFound = errors.New("can not find zipcode")
 	ErrInvalidZipCode  = errors.New("invalid zipcode")
 )
 
