@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/joaosczip/zipcode_temp/configs"
 	"github.com/joaosczip/zipcode_temp/internal/handlers"
 	"github.com/joaosczip/zipcode_temp/pkg/weather"
 	"github.com/joaosczip/zipcode_temp/pkg/zipcode"
@@ -16,10 +17,12 @@ type httpResponse struct {
 }
 
 func FetchTemperature(w http.ResponseWriter, r *http.Request) {
+	config, _ := configs.LoadConfig("")
+
 	httpClient := http.DefaultClient
 
 	zipcodeClient := zipcode.NewViaCepZipCodeClient(httpClient)
-	weatherClient := weather.NewWeatherAPIClient(httpClient, "905a326931cb4138a99225100241803")
+	weatherClient := weather.NewWeatherAPIClient(httpClient, config.WeatherAPIKey)
 	handler := handlers.NewTemperatureHandler(zipcodeClient, weatherClient)
 
 	zcode := r.URL.Query().Get("zipcode")
