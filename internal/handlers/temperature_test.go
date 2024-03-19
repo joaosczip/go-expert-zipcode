@@ -56,7 +56,7 @@ func TestTemperatureHandler_FetchTemperature(t *testing.T) {
 		weatherClientMock.AssertExpectations(t)
 	})
 
-	t.Run("should return an error when the city is not found", func(t *testing.T) {
+	t.Run("should return an error when the zipcode is not found", func(t *testing.T) {
 		zipCodeClientMock := &ZipCodeClientMock{}
 		weatherClientMock := &WeatherClientMock{}
 
@@ -68,6 +68,23 @@ func TestTemperatureHandler_FetchTemperature(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, zipcode.ErrZipCodeNotFound)
+
+		zipCodeClientMock.AssertExpectations(t)
+		weatherClientMock.AssertNotCalled(t, "Fetch")
+	})
+
+	t.Run("should return an error when the zipcode is invalid", func(t *testing.T) {
+		zipCodeClientMock := &ZipCodeClientMock{}
+		weatherClientMock := &WeatherClientMock{}
+
+		zipCodeClientMock.On("Fetch", "invalid-zip-code").Return(&zipcode.City{}, zipcode.ErrInvalidZipCode)
+
+		handler := NewTemperatureHandler(zipCodeClientMock, weatherClientMock)
+
+		_, err := handler.FetchTemperature("invalid-zip-code")
+
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, zipcode.ErrInvalidZipCode)
 
 		zipCodeClientMock.AssertExpectations(t)
 		weatherClientMock.AssertNotCalled(t, "Fetch")
