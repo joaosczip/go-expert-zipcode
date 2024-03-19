@@ -3,7 +3,6 @@ package zipcode
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 )
 
@@ -34,17 +33,11 @@ func (v *ViaCepZipCodeClient) Fetch(context context.Context, zipCode string) (*C
 
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return nil, err
-	}
-
 	var viaCepResponse struct {
 		Localidade string `json:"localidade"`
 	}
 
-	if err := json.Unmarshal(respBody, &viaCepResponse); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&viaCepResponse); err != nil {
 		return nil, err
 	}
 

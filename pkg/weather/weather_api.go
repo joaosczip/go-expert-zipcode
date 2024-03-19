@@ -3,7 +3,6 @@ package weather
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 )
 
@@ -30,12 +29,6 @@ func (w *WeatherAPIClient) Fetch(ctx context.Context, city string) (*Weather, er
 
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return nil, err
-	}
-
 	var weatherResponse struct {
 		Current struct {
 			TempC float64 `json:"temp_c"`
@@ -43,7 +36,7 @@ func (w *WeatherAPIClient) Fetch(ctx context.Context, city string) (*Weather, er
 		} `json:"current"`
 	}
 
-	if err := json.Unmarshal(respBody, &weatherResponse); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&weatherResponse); err != nil {
 		return nil, err
 	}
 
