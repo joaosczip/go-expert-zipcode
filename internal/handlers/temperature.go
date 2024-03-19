@@ -18,9 +18,9 @@ func NewTemperatureHandler(zipCodeClient zipcode.ZipCodeClient, weatherClient we
 }
 
 type FetchTemperatureOutput struct {
-	Celsius    float64 `json:"celsius"`
-	Fahrenheit float64 `json:"fahrenheit"`
-	Kelvin     float64 `json:"kelvin"`
+	Celsius    float64 `json:"temp_C"`
+	Fahrenheit float64 `json:"temp_F"`
+	Kelvin     float64 `json:"temp_K"`
 }
 
 func (h *TemperatureHandler) FetchTemperature(zipCode string) (FetchTemperatureOutput, error) {
