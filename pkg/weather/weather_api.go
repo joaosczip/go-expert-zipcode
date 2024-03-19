@@ -3,11 +3,13 @@ package weather
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
 type WeatherAPIClient struct {
 	client *http.Client
+	apiKey string
 }
 
 type WeatherAPIErrorResponse struct {
@@ -21,12 +23,14 @@ var (
 	codeMissingLocation = 1003
 )
 
-func NewWeatherAPIClient(client *http.Client) *WeatherAPIClient {
-	return &WeatherAPIClient{client}
+func NewWeatherAPIClient(client *http.Client, apiKey string) *WeatherAPIClient {
+	return &WeatherAPIClient{client, apiKey}
 }
 
 func (w *WeatherAPIClient) Fetch(ctx context.Context, city string) (*Weather, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.weatherapi.com/v1/current.json?key=123&q="+city, nil)
+	reqUrl := fmt.Sprintf("https://api.weatherapi.com/v1/current.json?key=%s&q=%s", w.apiKey, city)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqUrl, nil)
 
 	if err != nil {
 		return nil, err
@@ -40,7 +44,11 @@ func (w *WeatherAPIClient) Fetch(ctx context.Context, city string) (*Weather, er
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusBadRequest {
+	if resp.StatusCode >= http.StatusBadRequest && resp.StatusCode < http.StatusInternalServerError {
+		if resp.StatusCode == http.StatusForbidden {
+			return nil, ErrInvalidAPIKey
+		}
+
 		var errorResponse WeatherAPIErrorResponse
 		if err := json.NewDecoder(resp.Body).Decode(&errorResponse); err != nil {
 			return nil, err

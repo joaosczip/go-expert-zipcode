@@ -8,6 +8,7 @@ import (
 var (
 	ErrInvalidLocation = errors.New("invalid location")
 	ErrMissingLocation = errors.New("missing location")
+	ErrInvalidAPIKey   = errors.New("invalid api key")
 )
 
 type Weather struct {

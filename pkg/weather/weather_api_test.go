@@ -32,7 +32,7 @@ func TestWeatherAPIClient(t *testing.T) {
 			),
 		)
 
-		weatherClient := NewWeatherAPIClient(http.DefaultClient)
+		weatherClient := NewWeatherAPIClient(http.DefaultClient, "123")
 
 		weather, err := weatherClient.Fetch(context.TODO(), "Curitiba")
 
@@ -61,7 +61,7 @@ func TestWeatherAPIClient(t *testing.T) {
 			),
 		)
 
-		weatherClient := NewWeatherAPIClient(http.DefaultClient)
+		weatherClient := NewWeatherAPIClient(http.DefaultClient, "123")
 
 		weather, err := weatherClient.Fetch(context.TODO(), "invalid")
 
@@ -89,12 +89,31 @@ func TestWeatherAPIClient(t *testing.T) {
 			),
 		)
 
-		weatherClient := NewWeatherAPIClient(http.DefaultClient)
+		weatherClient := NewWeatherAPIClient(http.DefaultClient, "123")
 
 		weather, err := weatherClient.Fetch(context.TODO(), "")
 
 		assert.Error(t, err)
 		assert.Nil(t, weather)
 		assert.ErrorIs(t, err, ErrMissingLocation)
+	})
+
+	t.Run("should return an error when the api key is blank", func(t *testing.T) {
+		httpmock.RegisterResponder(
+			http.MethodGet,
+			"https://api.weatherapi.com/v1/current.json?key=&q=Curitiba",
+			httpmock.NewStringResponder(
+				http.StatusForbidden,
+				"",
+			),
+		)
+
+		weatherClient := NewWeatherAPIClient(http.DefaultClient, "")
+
+		weather, err := weatherClient.Fetch(context.TODO(), "Curitiba")
+
+		assert.Error(t, err)
+		assert.Nil(t, weather)
+		assert.ErrorIs(t, err, ErrInvalidAPIKey)
 	})
 }
