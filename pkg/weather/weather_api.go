@@ -27,6 +27,10 @@ func (w *WeatherAPIClient) Fetch(ctx context.Context, city string) (*Weather, er
 		return nil, err
 	}
 
+	if resp.StatusCode == http.StatusBadRequest {
+		return nil, ErrInvalidLocation
+	}
+
 	defer resp.Body.Close()
 
 	var weatherResponse struct {

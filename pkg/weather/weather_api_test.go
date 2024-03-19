@@ -41,4 +41,32 @@ func TestWeatherAPIClient(t *testing.T) {
 		assert.Equal(t, weather.Fahrenheit, 71.6)
 		assert.Equal(t, weather.Kelvin, 295.0)
 	})
+
+	t.Run("should return an error when the location was not found", func(t *testing.T) {
+		mockedResponse := `
+			{
+				"error": {
+					"code": 1006,
+					"message": "No matching location found."
+				}
+			}
+		`
+
+		httpmock.RegisterResponder(
+			http.MethodGet,
+			"https://api.weatherapi.com/v1/current.json?key=123&q=invalid",
+			httpmock.NewStringResponder(
+				http.StatusBadRequest,
+				mockedResponse,
+			),
+		)
+
+		weatherClient := NewWeatherAPIClient(http.DefaultClient)
+
+		weather, err := weatherClient.Fetch(context.TODO(), "invalid")
+
+		assert.Error(t, err)
+		assert.Nil(t, weather)
+		assert.ErrorIs(t, err, ErrInvalidLocation)
+	})
 }

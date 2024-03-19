@@ -1,6 +1,11 @@
 package weather
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var ErrInvalidLocation = errors.New("invalid location")
 
 type Weather struct {
 	Celsius    float64 `json:"celsius"`
