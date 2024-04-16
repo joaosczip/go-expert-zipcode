@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type WeatherAPIClient struct {
@@ -28,7 +29,7 @@ func NewWeatherAPIClient(client *http.Client, apiKey string) *WeatherAPIClient {
 }
 
 func (w *WeatherAPIClient) Fetch(ctx context.Context, city string) (*Weather, error) {
-	reqUrl := fmt.Sprintf("https://api.weatherapi.com/v1/current.json?key=%s&q=%s", w.apiKey, city)
+	reqUrl := fmt.Sprintf("https://api.weatherapi.com/v1/current.json?key=%s&q=%s", w.apiKey, strings.ReplaceAll(city, " ", "+"))
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqUrl, nil)
 
